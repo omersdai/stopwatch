@@ -12,16 +12,19 @@ const splitList = document.getElementById('splitList');
 
 let timePassed = 0; //milliseconds
 const tick = 30; // update clock every tick milliseconds
-let worker;
+let interval;
 let clockActive = false;
 splitBtn.disabled = true;
 
 toggleBtn.addEventListener('click', () => {
   if (!clockActive) {
-    setWorker();
+    interval = setInterval(()=>{
+      timePassed += tick;
+      updateClock();
+    }, tick);
     toggleBtn.innerText = 'Stop';
   } else {
-    clearWorker();
+    clearInterval(interval);
     toggleBtn.innerText = 'Start';
   }
   clockActive = !clockActive;
@@ -34,7 +37,7 @@ splitBtn.addEventListener('click', () => {
 });
 
 resetBtn.addEventListener('click', () => {
-  clearWorker();
+  clearInterval(interval);
   timePassed = 0;
   toggleBtn.innerText = 'Start';
   clockActive = false;
@@ -91,17 +94,5 @@ function computeTime() {
   return { hour, minute, second, millisecond };
 }
 
-function setWorker() {
-  worker = new Worker('worker.js');
-  worker.addEventListener('message', (e) => {
-    timePassed += tick;
-    updateClock();
-  });
-}
-
-function clearWorker() {
-  worker.terminate();
-  worker = undefined;
-}
 
 const formatNumber = (number) => (number < 10 ? `0${number}` : number + '');
